@@ -1,0 +1,40 @@
+---
+title: Use Explicit Conditional Rendering
+impact: LOW
+impactDescription: prevents rendering 0 or NaN
+tags: rendering, conditional, jsx, falsy-values
+---
+
+## Use Explicit Conditional Rendering
+
+Prefer explicit ternary operators (`? :`) over `&&` for conditional rendering whenever the condition could evaluate to `0`, `NaN`, or any other falsy value that would be rendered to the DOM.
+
+**Incorrect (renders "0" when count is 0):**
+
+```tsx
+function Badge({ count }: { count: number }) {
+  return (
+    <div>
+      {count && <span className="badge">{count}</span>}
+    </div>
+  )
+}
+
+// When count = 0, renders: <div>0</div>
+// When count = 5, renders: <div><span class="badge">5</span></div>
+```
+
+**Correct (renders nothing when count is 0):**
+
+```tsx
+function Badge({ count }: { count: number }) {
+  return (
+    <div>
+      {count > 0 ? <span className="badge">{count}</span> : null}
+    </div>
+  )
+}
+
+// When count = 0, renders: <div></div>
+// When count = 5, renders: <div><span class="badge">5</span></div>
+```

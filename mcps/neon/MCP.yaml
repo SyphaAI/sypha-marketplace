@@ -1,0 +1,30 @@
+id: neon
+name: Neon Database
+description: Enables read-only natural language interaction with Neon PostgreSQL databases through Neon's official hosted
+  MCP endpoint.
+author: Neon
+url: https://github.com/neondatabase/mcp-server-neon
+category: data
+prerequisites:
+  - Neon account
+content:
+  - name: Remote OAuth (read-only)
+    content: |
+      {
+        "type": "streamable-http",
+        "url": "https://mcp.neon.tech/mcp?readonly=true"
+      }
+  - name: Remote API Key (read-only)
+    content: |
+      {
+        "type": "streamable-http",
+        "url": "https://mcp.neon.tech/mcp?readonly=true",
+        "headers": {
+          "Authorization": "Bearer {{NEON_API_KEY}}"
+        }
+      }
+parameters:
+  - name: Neon API Key
+    key: NEON_API_KEY
+    placeholder: your_neon_api_key
+    optional: true

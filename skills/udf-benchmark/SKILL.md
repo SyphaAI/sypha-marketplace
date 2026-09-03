@@ -1,0 +1,94 @@
+---
+name: udf-benchmark
+description: >-
+  Supports benchmarking and profiling the performance of an Apache Spark UDF on
+  the GPU. This is step 3 of 3 in the UDF conversion workflow (udf-gen-test ->
+  udf-convert-to-* -> udf-benchmark). Use this skill when you have a CPU UDF and
+  a RapidsUDF or SQL implementation and need to measure the performance of the
+  CPU UDF against the GPU implementation.
+metadata:
+  spdx-file-copyright-text: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+  upstream:
+    model: inherit
+  category: data
+  source:
+    repository: 'https://github.com/NVIDIA/cudf-spark'
+    path: skills/udf-benchmark
+    license_path: LICENSE
+    commit: a707353465abe170e486d91304944c98f64fd938
+---
+
+# UDF Benchmark
+
+## Workflow
+
+- [ ] Step 1: Implement BenchUtils (fill in TODO methods)
+- [ ] Step 2: Validate with a small dataset
+- [ ] Step 3: Generate full benchmark data and run benchmarks
+- [ ] Step 4: cuDF microbenchmarks (skip for SQL targets)
+
+**Before making any edits, create a visible TODO checklist covering every workflow step in this skill and keep it updated.** Do not produce a final answer until all required checklist items are marked complete.
+
+## Prerequisites
+
+- Project directory from Steps 1-2 (udf-gen-test, udf-convert-to-*) with passing tests
+
+Derive `<CamelName>` and `<snake_name>` from the UDF class name.
+
+> **Note:** Commands require access to `/tmp` (Spark temp storage) and `/dev` (GPU device). If commands fail due to sandbox restrictions, re-run them unsandboxed.
+
+## Step 1: Implement BenchUtils
+
+Read `src/main/scala/com/udf/bench/BenchUtils.scala`. Substitute placeholders with the actual camel/snake UDF name.
+
+Complete the TODO methods following the docstrings. For variable-length inputs, produce rows of sufficient size to represent enterprise-scale data. Consult the unit test for schema and example data.
+
+## Step 2: Validate
+
+Make the scripts executable:
+```bash
+chmod +x *.sh
+```
+
+Run in validation mode to test against a small dataset:
+```bash
+./run_gen_data.sh --rows 1000 --validate
+```
+
+This executes both the CPU and GPU implementations against the dataset.
+If validation fails, examine the error and correct the BenchUtils implementation.
+
+## Step 3: Generate Data and Run Benchmarks
+
+The scripts configure the default heap size to 16g in `.mvn/jvm.config`; adjust this based on the
+data size.
+
+### Generate benchmark data (10M rows):
+```bash
+./run_gen_data.sh --rows 10000000
+```
+
+### Run benchmarks:
+```bash
+# CPU benchmark
+./run_spark_benchmark.sh --mode cpu --data-path data/bench_data_10000000_rows.parquet
+
+# GPU benchmark
+./run_spark_benchmark.sh --mode gpu --data-path data/bench_data_10000000_rows.parquet
+```
+
+Results are written to the `results/` directory as JSON files.
+
+## Step 4: cuDF Microbenchmarks
+
+> Skip this step for SQL targets. It applies only to cuDF RapidsUDF conversions.
+
+Follow [CUDF_MICROBENCHMARKS.md](CUDF_MICROBENCHMARKS.md) to implement and execute in-memory microbenchmarks.
+
+## Output
+
+After successful completion:
+- Benchmark utilities: `src/main/scala/com/udf/bench/BenchUtils.scala`
+- Microbenchmarks (cuDF): `src/main/scala/com/udf/bench/MicroBenchRunner.scala`
+- Generated data: `data/`
+- Benchmark results: `results/`

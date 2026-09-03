@@ -1,0 +1,377 @@
+# Remediation Patterns for Common azqr Findings
+
+This document collects remediation templates for compliance issues that come up frequently.
+
+## Storage Account Issues
+
+### Enable Private Endpoints
+
+**Issue:** Storage account is reachable through a public endpoint
+
+**Azure CLI:**
+```bash
+# Create private endpoint
+az network private-endpoint create \
+  --name pe-storage \
+  --resource-group <rg-name> \
+  --vnet-name <vnet-name> \
+  --subnet <subnet-name> \
+  --private-connection-resource-id $(az storage account show -n <storage-name> -g <rg-name> --query id -o tsv) \
+  --group-id blob \
+  --connection-name pe-storage-connection
+
+# Disable public access
+az storage account update \
+  --name <storage-name> \
+  --resource-group <rg-name> \
+  --public-network-access Disabled
+```
+
+**Bicep:**
+```bicep
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+  name: 'pe-${storageAccount.name}'
+  location: location
+  properties: {
+    subnet: {
+      id: subnet.id
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'pe-${storageAccount.name}-connection'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['blob']
+        }
+      }
+    ]
+  }
+}
+```
+
+### Enable Soft Delete
+
+**Issue:** Blobs lack soft delete protection
+
+**Azure CLI:**
+```bash
+az storage account blob-service-properties update \
+  --account-name <storage-name> \
+  --resource-group <rg-name> \
+  --enable-delete-retention true \
+  --delete-retention-days 7 \
+  --enable-container-delete-retention true \
+  --container-delete-retention-days 7
+```
+
+**Bicep:**
+```bicep
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+  properties: {
+    deleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+    containerDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+  }
+}
+```
+
+---
+
+## Key Vault Issues
+
+### Enable Purge Protection
+
+**Issue:** The Key Vault is at risk of permanent deletion
+
+**Azure CLI:**
+```bash
+az keyvault update \
+  --name <vault-name> \
+  --resource-group <rg-name> \
+  --enable-purge-protection true
+```
+
+**Bicep:**
+```bicep
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+  name: keyVaultName
+  location: location
+  properties: {
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    enablePurgeProtection: true
+    // ... other properties
+  }
+}
+```
+
+### Use RBAC for Data Plane
+
+**Issue:** Access policies are in use rather than RBAC
+
+**Azure CLI:**
+```bash
+az keyvault update \
+  --name <vault-name> \
+  --resource-group <rg-name> \
+  --enable-rbac-authorization true
+```
+
+---
+
+## Virtual Machine Issues
+
+### Enable Diagnostic Settings
+
+**Issue:** The VM has no diagnostics configured
+
+**Azure CLI:**
+```bash
+# Create Log Analytics workspace (if needed)
+az monitor log-analytics workspace create \
+  --resource-group <rg-name> \
+  --workspace-name <workspace-name>
+
+# Enable diagnostics
+az monitor diagnostic-settings create \
+  --name diag-vm \
+  --resource $(az vm show -g <rg-name> -n <vm-name> --query id -o tsv) \
+  --workspace $(az monitor log-analytics workspace show -g <rg-name> -n <workspace-name> --query id -o tsv) \
+  --metrics '[{"category": "AllMetrics", "enabled": true}]'
+```
+
+**Bicep:**
+```bicep
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'diag-${vm.name}'
+  scope: vm
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+```
+
+### Enable Azure Backup
+
+**Issue:** Azure Backup is not protecting the VM
+
+**Azure CLI:**
+```bash
+# Create Recovery Services vault (if needed)
+az backup vault create \
+  --resource-group <rg-name> \
+  --name <vault-name> \
+  --location <location>
+
+# Enable backup with default policy
+az backup protection enable-for-vm \
+  --resource-group <rg-name> \
+  --vault-name <vault-name> \
+  --vm $(az vm show -g <rg-name> -n <vm-name> --query id -o tsv) \
+  --policy-name DefaultPolicy
+```
+
+---
+
+## AKS Issues
+
+### Enable Defender for Containers
+
+**Issue:** AKS has no security monitoring in place
+
+**Azure CLI:**
+```bash
+az aks update \
+  --resource-group <rg-name> \
+  --name <cluster-name> \
+  --enable-defender
+```
+
+**Bicep:**
+```bicep
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
+  name: clusterName
+  location: location
+  properties: {
+    securityProfile: {
+      defender: {
+        securityMonitoring: {
+          enabled: true
+        }
+        logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.id
+      }
+    }
+    // ... other properties
+  }
+}
+```
+
+### Use Managed Identity
+
+**Issue:** AKS relies on a service principal rather than managed identity
+
+**Azure CLI:**
+```bash
+az aks update \
+  --resource-group <rg-name> \
+  --name <cluster-name> \
+  --enable-managed-identity
+```
+
+---
+
+## SQL Database Issues
+
+### Enable Auditing
+
+**Issue:** Auditing is not turned on for SQL Server
+
+**Azure CLI:**
+```bash
+# Enable to Log Analytics
+az sql server audit-policy update \
+  --resource-group <rg-name> \
+  --name <server-name> \
+  --state Enabled \
+  --lats Enabled \
+  --lawri $(az monitor log-analytics workspace show -g <rg-name> -n <workspace-name> --query id -o tsv)
+```
+
+**Bicep:**
+```bicep
+resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = {
+  parent: sqlServer
+  name: 'default'
+  properties: {
+    state: 'Enabled'
+    isAzureMonitorTargetEnabled: true
+    retentionDays: 90
+  }
+}
+```
+
+### Enable Private Endpoint
+
+**Issue:** SQL Server is reachable through a public endpoint
+
+**Azure CLI:**
+```bash
+# Create private endpoint
+az network private-endpoint create \
+  --name pe-sql \
+  --resource-group <rg-name> \
+  --vnet-name <vnet-name> \
+  --subnet <subnet-name> \
+  --private-connection-resource-id $(az sql server show -g <rg-name> -n <server-name> --query id -o tsv) \
+  --group-id sqlServer \
+  --connection-name pe-sql-connection
+
+# Disable public access
+az sql server update \
+  --resource-group <rg-name> \
+  --name <server-name> \
+  --enable-public-network false
+```
+
+---
+
+## App Service Issues
+
+### Use Managed Identity
+
+**Issue:** Managed identity is not in use on the App Service
+
+**Azure CLI:**
+```bash
+az webapp identity assign \
+  --resource-group <rg-name> \
+  --name <app-name>
+```
+
+**Bicep:**
+```bicep
+resource webApp 'Microsoft.Web/sites@2023-01-01' = {
+  name: appName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    // ... other properties
+  }
+}
+```
+
+### Enforce HTTPS Only
+
+**Issue:** HTTP traffic is permitted
+
+**Azure CLI:**
+```bash
+az webapp update \
+  --resource-group <rg-name> \
+  --name <app-name> \
+  --https-only true
+```
+
+### Set Minimum TLS Version
+
+**Issue:** TLS version is lower than 1.2
+
+**Azure CLI:**
+```bash
+az webapp config set \
+  --resource-group <rg-name> \
+  --name <app-name> \
+  --min-tls-version 1.2
+```
+
+---
+
+## Bulk Remediation Script
+
+When several resources share the same type, apply the fix in a loop:
+
+```powershell
+# Example: Enable soft delete on all storage accounts
+$storageAccounts = az storage account list --query "[].{name:name, rg:resourceGroup}" -o json | ConvertFrom-Json
+
+foreach ($sa in $storageAccounts) {
+    Write-Host "Enabling soft delete on $($sa.name)..."
+    az storage account blob-service-properties update `
+        --account-name $sa.name `
+        --resource-group $sa.rg `
+        --enable-delete-retention true `
+        --delete-retention-days 7
+}
+```
+
+---
+
+## Remediation Validation
+
+Once the fixes are in place, run the azqr scan again through the Azure MCP tool to confirm the issues are resolved:
+
+```
+mcp_azure_mcp_extension_azqr
+  subscription: <subscription-id>
+```
+
+## Additional Resources
+
+- [Azure CLI Reference](https://learn.microsoft.com/cli/azure/)
+- [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
+- [Azure Policy Built-in Definitions](https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies)

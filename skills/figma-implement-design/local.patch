@@ -1,0 +1,34 @@
+diff -rN -U0 --ignore-trailing-space a/figma-implement-design/SKILL.md b/figma-implement-design/SKILL.md
+--- a/figma-implement-design/SKILL.md	2000-01-01 00:00:00.000000000 +0000
++++ b/figma-implement-design/SKILL.md	2000-01-01 00:00:00.000000000 +0000
+@@ -30 +30 @@
+-- If the user asks to author reusable agent rules (`CLAUDE.md`/`AGENTS.md`), switch to [figma-create-design-system-rules](../figma-create-design-system-rules/SKILL.md).
++- If the user asks to author reusable agent rules, switch to [figma-create-design-system-rules](../figma-create-design-system-rules/SKILL.md).
+@@ -43,0 +44,27 @@
++
++### Step 0: Set up Figma MCP (if not already configured)
++
++If any MCP call fails because Figma MCP is not connected, pause and help the user set it up.
++
++The Figma MCP server runs locally via the Figma Desktop app. Ensure the Figma Desktop app is running, then add the Figma Desktop MCP server to your config:
++
++```json
++{
++  "mcp": {
++    "Figma Desktop": {
++      "type": "remote",
++      "url": "http://127.0.0.1:3845/mcp"
++    }
++  }
++}
++```
++
++**VS Code Extension:** Open Sypha Settings > Agent Behaviour > MCP Servers, then click "Edit Global MCP" (or "Edit Project MCP" for project-specific config) and add the config above.
++
++**CLI:** Add the `mcp` block to your `sypha.json` config file. Config locations:
++- **Global:** `~/.config/sypha/sypha.json`
++- **Project:** `./sypha.json` or `./.sypha/sypha.json` in your project root
++
++Project-level configuration takes precedence over global settings.
++
++After adding the server, restart Sypha so it can connect to the Figma MCP server, then continue with Step 1.

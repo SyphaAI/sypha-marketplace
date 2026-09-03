@@ -1,0 +1,9 @@
+diff -rN -U0 --ignore-trailing-space a/canvas-design/SKILL.md b/canvas-design/SKILL.md
+--- a/canvas-design/SKILL.md	2000-01-01 00:00:00.000000000 +0000
++++ b/canvas-design/SKILL.md	2000-01-01 00:00:00.000000000 +0000
+@@ -59 +59 @@
+-- **Leave creative space**: Remain specific about the aesthetic direction, but concise enough that the next Claude has room to make interpretive choices also at a extremely high level of craftmanship.
++- **Leave creative space**: Remain specific about the aesthetic direction, but concise enough that the next phase has room to make interpretive choices also at a extremely high level of craftmanship.
+@@ -91 +91 @@
+-- **ARTISTIC FREEDOM**: The next Claude interprets the philosophy visually - provide creative room
++- **ARTISTIC FREEDOM**: The next phase interprets the philosophy visually - provide creative room

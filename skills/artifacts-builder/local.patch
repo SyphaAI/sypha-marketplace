@@ -1,0 +1,24 @@
+diff -rN -U0 --ignore-trailing-space a/artifacts-builder/scripts/bundle-artifact.sh b/artifacts-builder/scripts/bundle-artifact.sh
+--- a/artifacts-builder/scripts/bundle-artifact.sh	2000-01-01 00:00:00.000000000 +0000
++++ b/artifacts-builder/scripts/bundle-artifact.sh	2000-01-01 00:00:00.000000000 +0000
+@@ -53 +53 @@
+-echo "You can now use this single HTML file as an artifact in Claude conversations."
++echo "You can now use this single HTML file as an artifact in Sypha sessions."
+diff -rN -U0 --ignore-trailing-space a/artifacts-builder/SKILL.md b/artifacts-builder/SKILL.md
+--- a/artifacts-builder/SKILL.md	2000-01-01 00:00:00.000000000 +0000
++++ b/artifacts-builder/SKILL.md	2000-01-01 00:00:00.000000000 +0000
+@@ -4,4 +4,4 @@
+-  Suite of tools for creating elaborate, multi-component claude.ai HTML
+-  artifacts using modern frontend web technologies (React, Tailwind CSS,
+-  shadcn/ui). Use for complex artifacts requiring state management, routing, or
+-  shadcn/ui components - not for simple single-file HTML/JSX artifacts.
++  Suite of tools for creating elaborate, multi-component HTML artifacts using
++  modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for
++  complex artifacts requiring state management, routing, or shadcn/ui components
++  - not for simple single-file HTML/JSX artifacts.
+@@ -19 +19 @@
+-To build powerful frontend claude.ai artifacts, follow these steps:
++To build powerful frontend HTML artifacts, follow these steps:
+@@ -62 +62 @@
+-This creates `bundle.html` - a self-contained artifact with all JavaScript, CSS, and dependencies inlined. This file can be directly shared in Claude conversations as an artifact.
++This creates `bundle.html` - a self-contained artifact with all JavaScript, CSS, and dependencies inlined. This file can be directly shared in Sypha sessions as an artifact.

@@ -1,0 +1,20 @@
+id: ida-pro
+name: IDA Pro
+description: An MCP server for interacting with the IDA Pro disassembler.
+suggest_for:
+  filename:
+    - "*.idb"
+    - "*.i64"
+author: mrexodia
+url: https://github.com/mrexodia/ida-pro-mcp
+category: development
+content:
+  - name: UVX
+    prerequisites:
+      - Python and uv
+      - Git
+    content: >
+      {
+        "command": "uvx",
+        "args": ["--from", "git+https://github.com/mrexodia/ida-pro-mcp.git@f0af9fba733fb60fc13365b297b10c82db3771d7", "ida-pro-mcp"]
+      }

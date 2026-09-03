@@ -1,0 +1,502 @@
+# Contributing to Sypha Marketplace
+
+Thank you for your interest in contributing to the Sypha Marketplace! This guide will help you add new skills that benefit the entire community.
+
+## Before You Start
+
+- Ensure your skill is based on a **real use case**, not a hypothetical scenario.
+- Search existing skills to avoid duplicates.
+- If possible, attribute the use case to the original person or source.
+
+## Skill Requirements
+
+All skills must:
+
+1. **Solve a real problem** - Based on actual usage, not theoretical applications.
+2. **Be well-documented** - Include clear instructions, examples, and use cases.
+3. **Be accessible** - Written for non-technical users when possible.
+4. **Include examples** - Show practical, real-world usage.
+5. **Be tested** - Verify the skill works in Sypha Code
+6. **Be safe** - Confirm before destructive operations.
+
+## Skill Structure
+
+Create a new folder with your skill name (use lowercase and hyphens):
+
+```
+skills/
+└──skill-name/
+    └── SKILL.md
+```
+
+## SKILL.md Template
+
+Use this template for your skill:
+
+```markdown
+---
+name: skill-name
+description: One-sentence description of what this skill does and when to use it.
+---
+
+# Skill Name
+
+Detailed description of the skill and what it helps users accomplish.
+
+## When to Use This Skill
+
+- Bullet point use case 1
+- Bullet point use case 2
+- Bullet point use case 3
+
+## What This Skill Does
+
+1. **Capability 1**: Description
+2. **Capability 2**: Description
+3. **Capability 3**: Description
+
+## How to Use
+
+### Basic Usage
+```
+
+Simple example prompt
+
+```
+
+### Advanced Usage
+
+```
+
+More complex example prompt with options
+
+```
+
+## Example
+
+**User**: "Example prompt"
+
+**Output**:
+```
+
+Show what the skill produces
+
+```
+
+**Inspired by:** [Attribution to original source, if applicable]
+
+## Tips
+
+- Tip 1
+- Tip 2
+- Tip 3
+
+## Common Use Cases
+
+- Use case 1
+- Use case 2
+- Use case 3
+```
+
+## Skills Must Be Hosted Externally
+
+The Sypha Marketplace does **not** host the source code for contributed skills directly. Instead, the marketplace acts as an index that references skills hosted in external repositories. This design allows skill authors to:
+
+- **Maintain ownership** — you control your skill's repository and can update it at any time
+- **Iterate independently** — push fixes and improvements without waiting for marketplace PRs
+- **Keep licensing clear** — your repository is the canonical source with its own license
+
+### How It Works
+
+1. **Create a public GitHub repository** for your skill (or a repository containing multiple skills).
+2. **Add a `SKILL.md`** file with the standard frontmatter (`name`, `description`, etc.).
+3. **Submit a PR to this marketplace** that adds your skill using the `add-remote-skill` tooling (see below). The script automatically pulls in your skill and adds the `metadata.source` reference to the frontmatter.
+
+The marketplace periodically syncs with source repositories to pull in updates, so you don't need to submit a new PR every time you change your skill.
+
+### The `metadata.source` Frontmatter
+
+Every contributed skill in the marketplace must have a `metadata.source` section in its YAML frontmatter. This tells the marketplace where the canonical source lives. **You don't need to add this yourself** — the `add-remote-skill` script (see below) adds it automatically when importing your skill. But for reference, here's what it looks like:
+
+```yaml
+---
+name: my-skill
+description: >-
+  A clear description of what this skill does and when to use it.
+metadata:
+  category: development
+  author: your-github-username
+  suggest_for:
+    filename:
+      - "*.component.ts"
+  source:
+    repository: https://github.com/yourname/your-skill-repo
+    path: path/to/skill
+    license_path: LICENSE
+    commit: 0123456789abcdef0123456789abcdef01234567
+---
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `metadata.suggest_for.filename` | No | Non-empty list of patterns that make this skill highly probable from the filename alone; prefer distinctive forms such as `"*.component.ts"` and omit broad patterns such as `"*.ts"` |
+| `metadata.suggest_for.vscode_extension` | No | Non-empty list of VS Code extension objects (`name` + `id`) that strongly indicate this skill is relevant, such as `{ name: "Jupyter", id: "ms-toolsai.jupyter" }` |
+| `requirements` | No | Direct skill, VS Code extension, and MCP dependencies; see [Marketplace Requirements](#marketplace-requirements) |
+| `metadata.source.repository` | **Yes** (for contributed skills) | URL to the GitHub repository containing your skill |
+| `metadata.source.path` | **Yes** (for contributed skills) | Path within the repository to the skill directory |
+| `metadata.source.license_path` | **Yes** (for contributed skills) | Path to the LICENSE file in the source repo |
+| `metadata.source.commit` | **Yes** (for new imports and updates) | Full 40-character Git SHA of the imported upstream revision; managed by marketplace tooling |
+
+Suggestion patterns are intentionally not exhaustive. A format being supported as input or output is not enough to add it: for example, a generic Markdown or audio file does not imply a writing or meeting-analysis task. Likewise, only list a VS Code extension when its installation strongly indicates the exact skill is relevant. A `suggest_for` object must contain at least one of `filename` or `vscode_extension`.
+
+### Real-World Examples
+
+Here are some existing skills in the marketplace and how they reference their source repositories:
+
+**Angular Component** (from [analogjs/angular-skills](https://github.com/analogjs/angular-skills)):
+```yaml
+---
+name: angular-component
+description: Create modern Angular standalone components following v20+ best practices...
+metadata:
+  category: development
+  source:
+    repository: 'https://github.com/analogjs/angular-skills'
+    path: skills/angular-component
+    license_path: LICENSE
+---
+```
+
+**Frontend Design** (from [anthropics/skills](https://github.com/anthropics/skills)):
+```yaml
+---
+name: frontend-design
+description: Create distinctive, production-grade frontend interfaces...
+metadata:
+  category: development
+  source:
+    repository: 'https://github.com/anthropics/skills'
+    path: skills/frontend-design
+    license_path: skills/frontend-design/LICENSE.txt
+---
+```
+
+**Create Pull Request** (from [cline/cline](https://github.com/cline/cline)):
+```yaml
+---
+name: create-pull-request
+description: Create a GitHub pull request following project conventions...
+metadata:
+  category: development
+  source:
+    repository: 'https://github.com/cline/cline'
+    path: .cline/skills/create-pull-request
+    license_path: LICENSE
+---
+```
+
+### Adding Your Skill to the Marketplace
+
+Once your skill is hosted in its own repository, use the `add-remote-skill` script to add it:
+
+```bash
+npx tsx bin/add-remote-skill.ts https://github.com/yourname/your-repo/tree/main/path/to/skill
+```
+
+This script will:
+1. Clone only the skill directory from your repository
+2. Copy it into `skills/<skill-name>/`
+3. Update the SKILL.md frontmatter with the correct `metadata.source` fields
+
+Then submit a PR with the result.
+
+> **Note:** Skills submitted without a valid `metadata.source` referencing an external repository will not be accepted unless they are official Sypha skills.
+
+## Pull Request Process
+
+1. Fork the repository
+2. Create a branch: `git checkout -b add-skill-name`
+3. Host your skill in your own public GitHub repository (see above)
+4. Run `npx tsx bin/add-remote-skill.ts <github-url-to-your-skill>` to add it
+5. Commit your changes: `git commit -m "Add [Skill Name] skill"`
+6. Push to your fork: `git push origin add-skill-name`
+7. Open a Pull Request
+
+## Pull Request Guidelines
+
+Your PR should:
+
+- **Title**: "Add [Skill Name] skill"
+- **Description**: Explain the real-world use case and include:
+  - What problem it solves
+  - Who uses this workflow
+  - Attribution/inspiration source
+  - Example of how it's used
+
+## Code of Conduct
+
+- Be respectful and constructive
+- Credit original sources and inspirations
+- Focus on practical, helpful skills
+- Write clear, accessible documentation
+- Test your skills before submitting
+
+## Questions?
+
+Open an issue if you have questions about contributing or need help structuring your skill.
+
+## Attribution
+
+When adding a skill based on someone's workflow or use case, include proper attribution:
+
+```markdown
+**Inspired by:** [Person Name]'s workflow
+```
+
+or
+
+```markdown
+**Credit:** Based on [Company/Team]'s process
+```
+
+Examples:
+
+- **Inspired by:** Dan Shipper's meeting analysis workflow
+- **Inspired by:** Teresa Torres's content research process
+- **Credit:** Based on Notion's documentation workflow
+
+---
+
+## Marketplace Requirements
+
+Agent, skill, and MCP definitions may declare machine-readable dependencies with an optional top-level `requirements` field:
+
+```yaml
+requirements:
+  skills:
+    - jupyter-notebook
+  vscode_extensions:
+    - name: Jupyter
+      id: ms-toolsai.jupyter
+  mcps:
+    - jupyter
+```
+
+The supported subgroups are exactly `skills`, `vscode_extensions`, and `mcps`. Each subgroup that is present must be a non-empty list, and every listed item is a direct required dependency; alternative or OR groups are not supported. Omit `requirements` entirely when the resource has no machine-readable dependencies.
+
+Skill values must be exact marketplace skill IDs, and MCP values must match the `id` in the resource's `MCP.yaml`. Both are checked during marketplace generation. A skill cannot require itself, and an MCP cannot require itself. Dependencies between multiple resources are not expanded or checked for cycles. Each VS Code extension requires a human-readable `name` and a non-empty extension identifier in `id`. Authored values and list ordering are preserved without normalization, sorting, or deduplication.
+
+Declare requirements at the top level of `agents/<id>/AGENT_DEFINITION.md`, `skills/<id>/SKILL.md`, or `mcps/<id>/MCP.yaml`. Generated agent requirements are emitted as `items[].content.requirements` so installation retains them. Generated skill and MCP requirements remain at `items[].requirements`, because skill content is a download URL and MCP content is runtime configuration.
+
+Keep setup instructions that cannot be resolved to marketplace skills, MCPs, or VS Code extensions in `prerequisites`.
+
+---
+
+## Contributing MCP Servers
+
+MCP (Model Context Protocol) servers extend Sypha Code's capabilities by connecting to external tools and services.
+
+### MCP Requirements
+
+All contributed MCP servers must:
+
+1. **Provide real value** - Connect to useful external services or tools
+2. **Be well-documented** - Include clear setup instructions and prerequisites
+3. **Handle authentication securely** - Use environment variables for sensitive data
+4. **Include multiple installation options** - When possible, provide NPX, Docker, and other methods
+
+### MCP Structure
+
+Create a new folder with your MCP server name (use lowercase and hyphens):
+
+```
+mcps/
+└── service-name/
+    └── MCP.yaml
+```
+
+The `MCP.yaml` file should contain:
+
+```yaml
+id: service-name
+name: Service Name
+description: Brief description of what this MCP server provides
+author: author-name
+url: https://github.com/org/repo
+category: development
+suggest_for:
+  filename:
+    - "*.i64"
+prerequisites:
+  - Required software or accounts
+content:
+  - name: NPX
+    prerequisites:
+      - Node.js
+    content: |
+      {
+        "command": "npx",
+        "args": ["-y", "@package/mcp-server"],
+        "env": {
+          "API_KEY": "{{API_KEY}}"
+        }
+      }
+parameters:
+  - name: API Key
+    key: API_KEY
+    placeholder: your_api_key_here
+```
+
+### MCP Properties
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `id` | Yes | Unique identifier (kebab-case) |
+| `name` | Yes | Display name for the MCP server |
+| `description` | Yes | Clear description of capabilities |
+| `author` | Yes | Author or organization name |
+| `url` | Yes | Link to the MCP server repository |
+| `category` | Yes | Primary category: `business`, `data`, `development`, `observability`, `productivity`, `search`, or `web-automation` |
+| `suggest_for.filename` | No | Non-empty list of patterns that make this MCP server highly probable from the filename alone; prefer proprietary formats such as `"*.i64"` and omit broad patterns such as `"*.php"` |
+| `suggest_for.vscode_extension` | No | Non-empty list of VS Code extension objects (`name` + `id`) that strongly indicate this MCP server is relevant, such as `{ name: "Jupyter", id: "ms-toolsai.jupyter" }` |
+| `requirements` | No | Direct skill, VS Code extension, and MCP dependencies; see [Marketplace Requirements](#marketplace-requirements) |
+| `prerequisites` | No | Required software or accounts |
+| `content` | Yes | Installation configuration(s) |
+| `parameters` | No | User-configurable parameters |
+
+Choose the single category that best represents how users will discover the MCP. Categories are broad navigation groups, not a list of every capability:
+
+- `business` - Finance, payments, contracts, and other specialized business operations
+- `data` - Databases, storage, data engineering, and persistent knowledge
+- `development` - Code, repositories, developer platforms, and software tooling
+- `observability` - Logs, errors, telemetry, and application or infrastructure monitoring
+- `productivity` - Projects, workflows, collaboration, communication, and office tools
+- `search` - Web, documentation, knowledge, and other information retrieval
+- `web-automation` - Browser control, testing, scraping, and web content extraction
+
+Propose a new category only when several MCPs share a distinct primary purpose that does not fit an existing category.
+
+Suggestion patterns are intentionally not exhaustive. Do not list every format an MCP can open; add only filenames or VS Code extensions that strongly identify that exact MCP, such as `"*.ipynb"` or `{ name: "Jupyter", id: "ms-toolsai.jupyter" }`. A `suggest_for` object must contain at least one of `filename` or `vscode_extension`.
+
+### Transport Types
+
+**STDIO Transport (Local):**
+```yaml
+content: |
+  {
+    "command": "npx",
+    "args": ["-y", "@package/mcp-server"],
+    "env": {
+      "API_KEY": "{{API_KEY}}"
+    }
+  }
+```
+
+**Streamable HTTP Transport (Remote):**
+```yaml
+content: |
+  {
+    "type": "streamable-http",
+    "url": "https://your-server-url.com/mcp",
+    "headers": {
+      "Authorization": "Bearer {{API_TOKEN}}"
+    }
+  }
+```
+
+### Multiple Installation Options
+
+Provide multiple ways to install when possible:
+
+```yaml
+content:
+  - name: NPX
+    prerequisites:
+      - Node.js
+    content: |
+      {
+        "command": "npx",
+        "args": ["-y", "@package/mcp-server"]
+      }
+  - name: Docker
+    prerequisites:
+      - Docker
+    content: |
+      {
+        "command": "docker",
+        "args": ["run", "-i", "--rm", "mcp/server"]
+      }
+  - name: UVX
+    prerequisites:
+      - Python and uv
+    content: |
+      {
+        "command": "uvx",
+        "args": ["mcp-server-package"]
+      }
+```
+
+### Parameter Configuration
+
+Define user-configurable parameters:
+
+```yaml
+parameters:
+  - name: API Key
+    key: API_KEY
+    placeholder: your_api_key_here
+  - name: Optional Setting
+    key: OPTIONAL_SETTING
+    placeholder: default_value
+    optional: true
+```
+
+### MCP Example
+
+**Example Service** (`mcps/example-service/MCP.yaml`):
+
+```yaml
+id: example-service
+name: Example Service
+description: Enables AI assistants to interact with Example Service API for data retrieval and automation.
+author: example-org
+url: https://github.com/example-org/example-mcp
+category: business
+prerequisites:
+  - Example Service account
+content:
+  - name: NPX
+    prerequisites:
+      - Node.js
+    content: |
+      {
+        "command": "npx",
+        "args": ["-y", "@example/mcp-server"],
+        "env": {
+          "EXAMPLE_API_KEY": "{{EXAMPLE_API_KEY}}"
+        }
+      }
+  - name: Docker
+    prerequisites:
+      - Docker
+    content: |
+      {
+        "command": "docker",
+        "args": ["run", "-i", "--rm", "-e", "EXAMPLE_API_KEY", "example/mcp-server"],
+        "env": {
+          "EXAMPLE_API_KEY": "{{EXAMPLE_API_KEY}}"
+        }
+      }
+parameters:
+  - name: Example API Key
+    key: EXAMPLE_API_KEY
+    placeholder: your_example_api_key
+```
+
+---
+
+## Questions?
+
+Open an issue if you have questions about contributing or need help structuring your skill, agent, or MCP server.
+
+Thank you for contributing to Sypha Marketplace!

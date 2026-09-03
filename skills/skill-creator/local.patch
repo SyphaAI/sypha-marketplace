@@ -1,0 +1,60 @@
+diff -rN -U0 --ignore-trailing-space a/skill-creator/scripts/init_skill.py b/skill-creator/scripts/init_skill.py
+--- a/skill-creator/scripts/init_skill.py	2000-01-01 00:00:00.000000000 +0000
++++ b/skill-creator/scripts/init_skill.py	2000-01-01 00:00:00.000000000 +0000
+@@ -78 +78 @@
+-**Note:** Scripts may be executed without loading into context, but can still be read by Claude for patching or environment adjustments.
++**Note:** Scripts may be executed without loading into context, but can still be read for patching or environment adjustments.
+@@ -81 +81 @@
+-Documentation and reference material intended to be loaded into context to inform Claude's process and thinking.
++Documentation and reference material intended to be loaded into context to inform the agent's process and thinking.
+@@ -88 +88 @@
+-**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information that Claude should reference while working.
++**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information to reference while working.
+@@ -91 +91 @@
+-Files not intended to be loaded into context, but rather used within the output Claude produces.
++Files not intended to be loaded into context, but rather used within the output the agent produces.
+@@ -168 +168 @@
+-the output Claude produces.
++the output the agent produces.
+diff -rN -U0 --ignore-trailing-space a/skill-creator/SKILL.md b/skill-creator/SKILL.md
+--- a/skill-creator/SKILL.md	2000-01-01 00:00:00.000000000 +0000
++++ b/skill-creator/SKILL.md	2000-01-01 00:00:00.000000000 +0000
+@@ -5 +5 @@
+-  to create a new skill (or update an existing skill) that extends Claude's
++  to create a new skill (or update an existing skill) that extends Sypha's
+@@ -22 +22 @@
+-Skills are modular, self-contained packages that extend Claude's capabilities by providing
++Skills are modular, self-contained packages that extend the agent's capabilities by providing
+@@ -24 +24 @@
+-domains or tasks—they transform Claude from a general-purpose agent into a specialized agent
++domains or tasks—they transform a general-purpose agent into a specialized agent
+@@ -53 +53 @@
+-**Metadata Quality:** The `name` and `description` in YAML frontmatter determine when Claude will use the skill. Be specific about what the skill does and when to use it. Use the third-person (e.g. "This skill should be used when..." instead of "Use this skill when...").
++**Metadata Quality:** The `name` and `description` in YAML frontmatter determine when the agent will use the skill. Be specific about what the skill does and when to use it. Use the third-person (e.g. "This skill should be used when..." instead of "Use this skill when...").
+@@ -64 +64 @@
+-- **Note**: Scripts may still need to be read by Claude for patching or environment-specific adjustments
++- **Note**: Scripts may still need to be read by the agent for patching or environment-specific adjustments
+@@ -68 +68 @@
+-Documentation and reference material intended to be loaded as needed into context to inform Claude's process and thinking.
++Documentation and reference material intended to be loaded as needed into context to inform the agent's process and thinking.
+@@ -70 +70 @@
+-- **When to include**: For documentation that Claude should reference while working
++- **When to include**: For documentation that the agent should reference while working
+@@ -73 +73 @@
+-- **Benefits**: Keeps SKILL.md lean, loaded only when Claude determines it's needed
++- **Benefits**: Keeps SKILL.md lean, loaded only when the agent determines it's needed
+@@ -79 +79 @@
+-Files not intended to be loaded into context, but rather used within the output Claude produces.
++Files not intended to be loaded into context, but rather used within the output the agent produces.
+@@ -84 +84 @@
+-- **Benefits**: Separates output resources from documentation, enables Claude to use files without loading them into context
++- **Benefits**: Separates output resources from documentation, enables the agent to use files without loading them into context
+@@ -92 +92 @@
+-3. **Bundled resources** - As needed by Claude (Unlimited*)
++3. **Bundled resources** - As needed by the agent (Unlimited*)
+@@ -166 +166 @@
+-When editing the (newly-generated or existing) skill, remember that the skill is being created for another instance of Claude to use. Focus on including information that would be beneficial and non-obvious to Claude. Consider what procedural knowledge, domain-specific details, or reusable assets would help another Claude instance execute these tasks more effectively.
++When editing the (newly-generated or existing) skill, remember that the skill is being created for another agent instance to use. Focus on including information that would be beneficial and non-obvious to the agent. Consider what procedural knowledge, domain-specific details, or reusable assets would help another agent instance execute these tasks more effectively.
+@@ -182 +182 @@
+-3. In practice, how should Claude use the skill? All reusable skill contents developed above should be referenced so that Claude knows how to use them.
++3. In practice, how should the agent use the skill? All reusable skill contents developed above should be referenced so that the agent knows how to use them.
