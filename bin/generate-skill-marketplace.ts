@@ -22,11 +22,11 @@ const skillsDir = repoPathFromBin("skills");
 const mcpsDir = repoPathFromBin("mcps");
 
 const GITHUB_BASE_URL =
-  "https://github.com/Sypha-Org/sypha-marketplace/tree/main/skills";
+  "https://github.com/SyphaAI/sypha-marketplace/tree/main/skills";
 const RAW_BASE_URL =
-  "https://raw.githubusercontent.com/Sypha-Org/sypha-marketplace/main/skills";
+  "https://raw.githubusercontent.com/SyphaAI/sypha-marketplace/main/skills";
 const CONTENT_BASE_URL =
-  "https://github.com/Sypha-Org/sypha-marketplace/releases/download/skills-latest";
+  "https://github.com/SyphaAI/sypha-marketplace/releases/download/skills-latest";
 
 const skillIds = new Set(listVisibleDirectories(skillsDir));
 const mcpIds = loadMcpIds(mcpsDir);
